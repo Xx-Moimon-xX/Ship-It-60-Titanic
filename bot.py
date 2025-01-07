@@ -20,10 +20,10 @@ def get_matcha_cafes(location):
     # Send a request to Google Maps API to get Matcha cafe results
     search_query = "cafes that sell matcha"
     response = requests.get(PLACES_API_URL, param={
-        'key' = "AIzaSyBue233NkLcfkFxjrde3o339iZh7p164uc",
-        'location' = "-33.868333, 151.20688",
-        'radius' = "1000",
-        'query' = search_query
+        'key' : "AIzaSyBue233NkLcfkFxjrde3o339iZh7p164uc",
+        'location' : "-33.868333, 151.20688",
+        'radius' : "1000",
+        'query' : search_query
     })
 
     # Check if the request was successful
@@ -69,6 +69,13 @@ def send_slack_message(channel, message):
 def slack_events():
     # Get the incoming payload from Slack
     data = request.json
+    print(f"WE ARE HERE {data}")
+    # Check if it's the URL verification challenge from Slack
+    if 'challenge' in data:
+        print("HEREEE")
+        # Respond with the challenge parameter as required by Slack
+        return jsonify({'challenge': data['challenge']})
+    
     event = data.get('event', {})
 
     # Check if it's a message event
