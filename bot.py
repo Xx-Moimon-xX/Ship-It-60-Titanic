@@ -11,18 +11,17 @@ client = WebClient(token=SLACK_BOT_TOKEN)
 
 # Google Maps API key (use your own API key)
 GOOGLE_MAPS_API_KEY = 'AIzaSyBue233NkLcfkFxjrde3o339iZh7p164uc'
-# PLACES_API_URL = "https://maps.googleapis.com/maps/api/place/textsearch/json"
 PLACES_API_URL = "https://maps.googleapis.com/maps/api/place/textsearch/json"
 
 # Flask app to handle Slack events
 app = Flask(__name__)
 
-def get_matcha_cafes(location = None):
+def get_matcha_cafes(location):
     # Send a request to Google Maps API to get Matcha cafe results
     search_query = "cafes that sell matcha"
     response = requests.get(PLACES_API_URL, param={
         'key' = "AIzaSyBue233NkLcfkFxjrde3o339iZh7p164uc",
-        'location' = "-33.8736507, 151.207075",
+        'location' = "-33.868333, 151.20688",
         'radius' = "1000",
         'query' = search_query
     })
@@ -31,14 +30,17 @@ def get_matcha_cafes(location = None):
     if response.status_code == 200:
         data = response.json()
         results = data.get('results', [])
-        
+
         if not results:
             return "Sorry, no matcha cafes found."
 
         # Randomly select a cafe
         cafe = random.choice(results)
 
-        # Extract necessary details
+        # testing
+        print(cafe)
+
+        # Extract necessary details TODO: see if any other inform required -> distance to walk?
         name = cafe.get('name')
         address = cafe.get('formatted_address')
         place_id = cafe.get('place_id')
@@ -56,6 +58,8 @@ def send_slack_message(channel, message):
             channel=channel,
             text=message
         )
+
+        # testing
         print(response)
         return response
     except SlackApiError as e:
@@ -72,12 +76,12 @@ def slack_events():
         text = event.get('text', '').lower()
         channel = event.get('channel')
 
-        # If the message contains "matcha", send a recommendation
-        if 'matcha' in text:
+        # If the message contains "give-me-matcha", send a recommendation
+        if 'give-me-matcha' in text:
             # Optional: Extract a location if provided in the message
-            location = "San Francisco"  # Default location
-            if 'in' in text:
-                location = text.split('in')[-1].strip()
+            location = None  # Default location
+#             if 'in' in text:
+#                 location = text.split('in')[-1].strip()
 
             # Get the matcha cafe recommendation
             recommendation = get_matcha_cafes(location)
